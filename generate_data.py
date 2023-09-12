@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 import torchvision as tv
 
 import cv2
-import tensorflow as tf
+# import tensorflow as tf
 
 
 class DataSet(Dataset):

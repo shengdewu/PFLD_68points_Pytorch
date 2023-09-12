@@ -204,7 +204,7 @@ def get_dataset_list(imgDir, outDir, landmarkDir, is_train):
 
 if __name__ == '__main__':
     root_dir = os.path.dirname(os.path.realpath(__file__))
-    imageDirs = 'raw'
+    imageDirs = '/mnt/sda2/WFLW/WFLW_images'
     Mirror_file = 'annotations/Mirror68.txt'
 
     landmarkDirs = ['annotations/list_68pt_rect_attr_train_test/list_68pt_rect_attr_train.txt',

@@ -1143,16 +1143,17 @@ class HighResolutionNet(nn.Module):
         return out, axn_input
 
 # resNest50
-from resnest.torch import resnest50
+from torchvision.models.resnet import resnet50
+
 class MyResNest50(nn.Module):
-    
+
     def __init__(self, nums_class=136):
         super(MyResNest50, self).__init__()
 
-        self.resnest = resnest50(pretrained=True)
+        self.resnest = resnet50(pretrained=True)
         self.resnest_backbone1 = nn.Sequential(*list(self.resnest.children())[:-6])
         self.resnest_backbone_end = nn.Sequential(*list(self.resnest.children())[-6:-2])
-        
+
         self.in_features = 2048 * 4 * 4
         self.fc = nn.Linear(in_features=self.in_features, out_features=nums_class)
 

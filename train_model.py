@@ -18,9 +18,9 @@ import sys
 import time
 from generate_data import DataSet
 from model2 import MobileNetV2, BlazeLandMark, AuxiliaryNet, WingLoss, EfficientLM, HighResolutionNet, MyResNest50
-from utils import train_model
+# from utils import train_model
 from euler_angles_utils import calculate_pitch_yaw_roll
-
+from thop import profile
 
 def get_euler_angle_weights(landmarks_batch, euler_angles_pre, device):
     TRACKED_POINTS = [17, 21, 22, 26, 36, 39, 42, 45, 31, 35, 48, 54, 57, 8]
@@ -29,6 +29,7 @@ def get_euler_angle_weights(landmarks_batch, euler_angles_pre, device):
     landmarks_batch = landmarks_batch.numpy()
     for index in TRACKED_POINTS:
         euler_angles_landmarks.append(landmarks_batch[:, 2 * index:2 * index + 2])
+
     euler_angles_landmarks = np.asarray(euler_angles_landmarks).transpose((1, 0, 2)).reshape((-1, 28))
 
     euler_angles_gt = []
@@ -79,10 +80,10 @@ def main(args):
         save_image_example(train_loader, args)
     
     #MobileNetV2
-    # coefficient = 0.25
-    # num_of_channels = [int(64 * coefficient), int(128 * coefficient), int(16 * coefficient), int(32 * coefficient), int(128 * coefficient)]
-    # model = MobileNetV2(num_of_channels=num_of_channels, nums_class=136)  # model
-    # auxiliary_net = AuxiliaryNet(input_channels=num_of_channels[0])
+    coefficient = 1.0
+    num_of_channels = [int(64 * coefficient), int(128 * coefficient), int(16 * coefficient), int(32 * coefficient), int(128 * coefficient)]
+    model = MobileNetV2(num_of_channels=num_of_channels, nums_class=136)  # model
+    auxiliary_net = AuxiliaryNet(input_channels=num_of_channels[0])
     
     #BlazeLandMark
     #model = BlazeLandMark(nums_class=136)
@@ -104,8 +105,8 @@ def main(args):
     #model = HighResolutionNet(nums_class=136)
     #auxiliary_net = AuxiliaryNet(input_channels=64, first_conv_stride=2)
     
-    model = MyResNest50(nums_class=136)
-    auxiliary_net = AuxiliaryNet(input_channels=64, first_conv_stride=2)
+    # model = MyResNest50(nums_class=136)
+    # auxiliary_net = AuxiliaryNet(input_channels=64, first_conv_stride=2)
     
     if args.pretrained_model:
         pretrained_model = args.pretrained_model
@@ -282,16 +283,16 @@ def save_image_example(train_loader, args):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--file_list', type=str, default='data/train_data/list.txt')
-    parser.add_argument('--test_list', type=str, default='data/test_data/list.txt')
-    parser.add_argument('--loss_log_dir', type=str, default='./train_loss_log/')
+    parser.add_argument('--file_list', type=str, default='/mnt/sda1/workspace/detection/PFLD_68points_Pytorch/data/WFLW/train_data/list.txt')
+    parser.add_argument('--test_list', type=str, default='/mnt/sda1/workspace/detection/PFLD_68points_Pytorch/data/WFLW/test_data/list.txt')
+    parser.add_argument('--loss_log_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld_new/')
     parser.add_argument('--seed', type=int, default=666)
     parser.add_argument('--max_epoch', type=int, default=1000)
     parser.add_argument('--image_size', type=int, default=112)
     parser.add_argument('--image_channels', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--pretrained_model', type=str, default='')
-    parser.add_argument('--model_dir', type=str, default='models2/model_test')
+    parser.add_argument('--model_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld_new')
     parser.add_argument('--learning_rate', type=float, default=0.01)
     parser.add_argument('--lr_epoch', type=str, default='10,20,50,100,200,500')
     parser.add_argument('--weight_decay', type=float, default=5e-5)
