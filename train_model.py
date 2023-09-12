@@ -22,11 +22,12 @@ from model2 import MobileNetV2, BlazeLandMark, AuxiliaryNet, WingLoss, Efficient
 from euler_angles_utils import calculate_pitch_yaw_roll
 from thop import profile
 
-def get_euler_angle_weights(landmarks_batch, euler_angles_pre, device):
-    TRACKED_POINTS = [17, 21, 22, 26, 36, 39, 42, 45, 31, 35, 48, 54, 57, 8]
 
+def get_euler_angle_weights(landmarks_batch, euler_angles_pre, device):
+    TRACKED_POINTS = [33, 37, 38, 42, 52, 55, 58, 61, 82, 83, 84, 90, 93, 16]
     euler_angles_landmarks = []
     landmarks_batch = landmarks_batch.numpy()
+
     for index in TRACKED_POINTS:
         euler_angles_landmarks.append(landmarks_batch[:, 2 * index:2 * index + 2])
 
@@ -60,9 +61,9 @@ def main(args):
         tv.transforms.Resize((args.image_size, args.image_size)),
         tv.transforms.ToTensor()
     ])
-    train_dataset = DataSet(args.file_list, args.image_channels, args.image_size, transforms=train_data_transforms,
+    train_dataset = DataSet(args.file_root, args.file_list, args.image_channels, args.image_size, transforms=train_data_transforms,
                             is_train=True)
-    test_dataset = DataSet(args.test_list, args.image_channels, args.image_size, transforms=test_data_transforms,
+    test_dataset = DataSet(args.file_root, args.test_list, args.image_channels, args.image_size, transforms=test_data_transforms,
                            is_train=False)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=12)
@@ -80,9 +81,9 @@ def main(args):
         save_image_example(train_loader, args)
     
     #MobileNetV2
-    coefficient = 1.0
+    coefficient = 1.5
     num_of_channels = [int(64 * coefficient), int(128 * coefficient), int(16 * coefficient), int(32 * coefficient), int(128 * coefficient)]
-    model = MobileNetV2(num_of_channels=num_of_channels, nums_class=136)  # model
+    model = MobileNetV2(num_of_channels=num_of_channels, nums_class=208)  # model
     auxiliary_net = AuxiliaryNet(input_channels=num_of_channels[0])
     
     #BlazeLandMark
@@ -283,16 +284,17 @@ def save_image_example(train_loader, args):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--file_list', type=str, default='/mnt/sda1/workspace/detection/PFLD_68points_Pytorch/data/WFLW/train_data/list.txt')
-    parser.add_argument('--test_list', type=str, default='/mnt/sda1/workspace/detection/PFLD_68points_Pytorch/data/WFLW/test_data/list.txt')
-    parser.add_argument('--loss_log_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld_new/')
+    parser.add_argument('--file_root', type=str, default='/home/shengdewu/data/facial_landmark/img_size256_1.05/PG')
+    parser.add_argument('--file_list', type=str, default='train_line.txt')
+    parser.add_argument('--test_list', type=str, default='val_line.txt')
+    parser.add_argument('--loss_log_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld-104/')
     parser.add_argument('--seed', type=int, default=666)
     parser.add_argument('--max_epoch', type=int, default=1000)
     parser.add_argument('--image_size', type=int, default=112)
     parser.add_argument('--image_channels', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--pretrained_model', type=str, default='')
-    parser.add_argument('--model_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld_new')
+    parser.add_argument('--model_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld-104')
     parser.add_argument('--learning_rate', type=float, default=0.01)
     parser.add_argument('--lr_epoch', type=str, default='10,20,50,100,200,500')
     parser.add_argument('--weight_decay', type=float, default=5e-5)

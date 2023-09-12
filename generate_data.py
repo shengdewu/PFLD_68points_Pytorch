@@ -9,15 +9,16 @@ import cv2
 
 class DataSet(Dataset):
 
-    def __init__(self, file_list, image_channels, image_size, transforms=None,
+    def __init__(self, file_root, file_list, image_channels, image_size, transforms=None,
                  loader=tv.datasets.folder.default_loader, is_train=True):
-        self.file_list, self.landmarks, self.attributes = gen_data(file_list)
+        self.file_list, self.landmarks, self.attributes = gen_data(f'{file_root}/{file_list}')
         self.image_channels = image_channels
         assert self.image_channels == 3
         self.image_size = image_size
         self.transforms = transforms
         self.loader = loader
         self.is_train = is_train
+        self.file_root = file_root
 
     def __len__(self):
         return len(self.file_list)
@@ -27,7 +28,7 @@ class DataSet(Dataset):
         landmarks = self.landmarks[index]
         attributes = self.attributes[index]
 
-        image = self.loader(file_name)
+        image = self.loader(f'{self.file_root}/{file_name}')
 
         # if self.is_train:
         #     assert image.size[0] == self.image_size
@@ -75,8 +76,8 @@ def gen_data(file_list):
     for line in lines:
         line = line.strip().split()
         path = line[0]
-        landmark = np.asarray(line[1:137], dtype=np.float32)
-        attribute = np.asarray(line[137:], dtype=np.int32)
+        landmark = np.asarray(line[1:209], dtype=np.float32)
+        attribute = np.asarray(line[209:], dtype=np.int32)
         filenames.append(path)
         landmarks.append(landmark)
         attributes.append(attribute)
