@@ -292,7 +292,7 @@ def parse_arguments(argv):
     parser.add_argument('--image_channels', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--pretrained_model', type=str, default='')
-    parser.add_argument('--model_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld_new')
+    parser.add_argument('--model_dir', type=str, default='/mnt/sda1/train.output/landmark/pfld_wflw')
     parser.add_argument('--learning_rate', type=float, default=0.01)
     parser.add_argument('--lr_epoch', type=str, default='10,20,50,100,200,500')
     parser.add_argument('--weight_decay', type=float, default=5e-5)
